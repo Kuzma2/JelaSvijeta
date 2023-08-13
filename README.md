@@ -79,8 +79,8 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 - Laravel 10.16.1
 
 ## Setup
-Laravel Translatable - `composer require astrotomic/laravel-translatable`
-FakerPHP - `composer require fakerphp/faker`
+- Laravel Translatable - `composer require astrotomic/laravel-translatable`
+- FakerPHP - `composer require fakerphp/faker`
 
 ## Tested
 - Postman
