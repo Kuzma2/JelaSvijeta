@@ -17,8 +17,14 @@ class MealController extends Controller
 {
     use Translatable;
 
-    public function show(Request $request){
 
+/**
+     * Display the specified resource.
+     *
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request){
         
         $per_page = $request->get('per_page');
         
@@ -36,7 +42,11 @@ class MealController extends Controller
 
         $category_id = $request->get('category');
 
+        //TODO add validators
+
         App::setLocale($lang);
+
+        //TODO implement using repository pattern (https://blog.devgenius.io/laravel-repository-design-pattern-a-quick-demonstration-5698d7ce7e1f)
 
         $query = Meal::query();
         $meals = new Meal();
@@ -47,7 +57,7 @@ class MealController extends Controller
         }
 
 
-        //optimization gruop by meal, distinct not implemented
+        //optimization group by meal, distinct not implemented
         // $q = Meal::query();
         // $q->join('meal_tag', 'meals.id', '=', 'meal_tag.meal_id')
         // ->select('meal_id', DB::raw('GROUP_CONCAT(tag_id) as tag_ids'))
