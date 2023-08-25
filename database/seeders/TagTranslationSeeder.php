@@ -24,6 +24,7 @@ class TagTranslationSeeder extends Seeder
                 DB::table('tag_translations')->insert([
                     'tag_id' => $value,
                     'locale' => $locale,
+                    //'title' => $faker->sentence(),
                     'title' => 'Tag title '.$value.' name in '.$locale.' language',
                 ]);
             } 

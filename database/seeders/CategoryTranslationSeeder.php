@@ -24,6 +24,7 @@ class CategoryTranslationSeeder extends Seeder
                 DB::table('category_translations')->insert([
                     'category_id' => $value,
                     'locale' => $locale,
+                    //'title' => $faker->sentence(),
                     'title' => 'Category '.$value.' name in '.$locale.' language',
                 ]);
             } 

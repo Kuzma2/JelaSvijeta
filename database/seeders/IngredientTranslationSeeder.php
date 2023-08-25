@@ -21,6 +21,7 @@ class IngredientTranslationSeeder extends Seeder
                 DB::table('ingredient_translations')->insert([
                     'ingredient_id' => $value,
                     'locale' => $locale,
+                    //'title' => $faker->sentence(),
                     'title' => 'Ingredient '.$value.' name in '.$locale.' language',
                 ]);
             } 
