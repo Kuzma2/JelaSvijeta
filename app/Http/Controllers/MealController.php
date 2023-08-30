@@ -32,7 +32,7 @@ class MealController extends Controller
             'tags' => 'non_negative_integer_array',
             'lang' => 'two_character_lang_tag',
             'with' => 'with_tag_false',
-            'category' => 'numeric|not_negative_integer',
+            //'category' => 'numeric|not_negative_integer',
             'diff_time' => 'numeric|not_negative_integer',
 
         );
@@ -59,80 +59,29 @@ class MealController extends Controller
 
         $category_id = $request->get('category');
 
-        //TODO add validators
-
         App::setLocale($lang);
 
         //TODO implement using repository pattern (https://blog.devgenius.io/laravel-repository-design-pattern-a-quick-demonstration-5698d7ce7e1f)
 
-        //return Meal::all();
+        $query = Meal::whereHas('tags', function ($query) use ($tags) {
+            $query->whereIn('tag_id', $tags);
+        }, '=', count($tags));
 
-        $query = Meal::query();
-        $meals = new Meal();
-
-
-        if (!empty($diffTime)) {
-            $query->where('created_at', '>=', now()->subSeconds($diffTime));
+        if ($category_id === '!NULL'){
+            $query->whereNotNull('category_id');
         }
-
-
-        //optimization group by meal, distinct not implemented
-        //$q = Meal::query();
-        //$q->join('meal_tag', 'meals.id', '=', 'meal_tag.meal_id')
-        //  ->select('meal_id', DB::raw('GROUP_CONCAT(tag_id) as tag_ids'))
-        //  ->groupBy('meal_id');
-        
-        //return Meal::all();
-
-        //$mealIds = [];
-        //$mealTags = $q->get();
-        //return $mealTags;
-        //foreach($mealTags as $item){
-        //    $tagIdsArray = explode(',', $item->tag_ids);
-            //return $tagIdsArray;
-        //    if($tagIdsArray===$tags){
-        //         return $item;
-        //     }
-        // }
-        //return $mealIds;
-
-
-        if (!empty($tag_id)){
-            $mealsArray = [];
-            for ($i = 0; $i < count($tags); $i++){
-            $q = Meal::query();
-            $q->join('meal_tag', 'meals.id', '=', 'meal_tag.meal_id')
-            ->select('meals.*')
-            ->where('tag_id', $tags[$i]);
-            $mealsArray[$i] = $q->get();
+        else if ($category_id === 'NULL'){
+            $query->whereNull('category_id');
         }
-     
-        $idArray = [];
-        for ($i = 0; $i < count($mealsArray); $i++){
-            $idArray[$i] = $mealsArray[$i]->pluck('id')->toArray();
-        }
-          
-        $intersection = $idArray[0];
-        for ($i = 1; $i < count($idArray); $i++){
-            $intersection = array_intersect($intersection, $idArray[$i]);
-        }
-
-        
-        $query->whereIn('id', $intersection);
-
-        }
-
-        if (!empty($category_id)){
-            $query->where('meals.category_id', $category_id);
-        }
-
         else {
-            $meals = $query->paginate($per_page);
+            $query->where('category_id', $category_id);
         }
 
-        
         $meals = $query->paginate($per_page);
 
+        if (!empty($diffTime)) {
+            $meals->where('created_at', '>=', now()->subSeconds($diffTime));
+        }
         
         if(in_array('tags', $with)){
             $meals->load('tags');
