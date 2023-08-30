@@ -51,33 +51,52 @@ class MealController extends Controller
 
         $tags = explode(",", $tag_id);
 
-        $with = $request->get('with');
+        $with_keywords = $request->get('with');
         
-        $with = explode(",", $with);
+        $with = explode(",", $with_keywords);
 
         $diffTime = $request->get('diff_time');
 
         $category_id = $request->get('category');
 
-        App::setLocale($lang);
+        if (!empty($lang))
+            App::setLocale($lang);
+
+            
+        if (empty($per_page) and empty($tag_id) and empty($with_keywords) and empty($diffTime) and empty($category_id)){
+            $meals = Meal::all();
+            $meals->makeHidden('translations');
+            return response()->json($meals);
+        }
 
         //TODO implement using repository pattern (https://blog.devgenius.io/laravel-repository-design-pattern-a-quick-demonstration-5698d7ce7e1f)
 
-        $query = Meal::whereHas('tags', function ($query) use ($tags) {
-            $query->whereIn('tag_id', $tags);
-        }, '=', count($tags));
+        $query = Meal::query();
+        if (!empty($tag_id)){
 
-        if ($category_id === '!NULL'){
-            $query->whereNotNull('category_id');
+            $query = Meal::whereHas('tags', function ($query) use ($tags) {
+                $query->whereIn('tag_id', $tags);
+            }, '=', count($tags));
+        }   
+
+        if (!empty($category_id)){
+            if ($category_id === '!NULL'){
+                $query->whereNotNull('category_id');
+            }
+            else if ($category_id === 'NULL'){
+                $query->whereNull('category_id');
+            }
+            else {
+                $query->where('category_id', $category_id);
+            }
         }
-        else if ($category_id === 'NULL'){
-            $query->whereNull('category_id');
-        }
+        if (!empty($per_page))
+        {
+            $meals = $query->paginate($per_page);
+        } 
         else {
-            $query->where('category_id', $category_id);
+            $meals = $query->paginate();
         }
-
-        $meals = $query->paginate($per_page);
 
         if (!empty($diffTime)) {
             $meals->where('created_at', '>=', now()->subSeconds($diffTime));
@@ -114,6 +133,10 @@ class MealController extends Controller
         }
 
         $meals->makeHidden('translations');
+
+        
+        $meals->appends($request->except('page'));
+
 
         return response()->json($meals);
     }
