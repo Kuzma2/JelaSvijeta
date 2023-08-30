@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Astrotomic\Translatable\Translatable;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
+use Validator;
 
 class MealController extends Controller
 {
@@ -25,6 +26,22 @@ class MealController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request){
+
+        $rules = array(
+            'per_page' => 'numeric|not_negative_integer',
+            'tags' => 'non_negative_integer_array',
+            'lang' => 'two_character_lang_tag',
+            'with' => 'with_tag_false',
+            'category' => 'numeric|not_negative_integer',
+            'diff_time' => 'numeric|not_negative_integer',
+
+        );
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()){
+            return response()->json($validator->errors(), 401);
+        }
         
         $per_page = $request->get('per_page');
         
@@ -48,6 +65,8 @@ class MealController extends Controller
 
         //TODO implement using repository pattern (https://blog.devgenius.io/laravel-repository-design-pattern-a-quick-demonstration-5698d7ce7e1f)
 
+        //return Meal::all();
+
         $query = Meal::query();
         $meals = new Meal();
 
@@ -58,20 +77,24 @@ class MealController extends Controller
 
 
         //optimization group by meal, distinct not implemented
-        // $q = Meal::query();
-        // $q->join('meal_tag', 'meals.id', '=', 'meal_tag.meal_id')
-        // ->select('meal_id', DB::raw('GROUP_CONCAT(tag_id) as tag_ids'))
-        // ->groupBy('meal_id');
+        //$q = Meal::query();
+        //$q->join('meal_tag', 'meals.id', '=', 'meal_tag.meal_id')
+        //  ->select('meal_id', DB::raw('GROUP_CONCAT(tag_id) as tag_ids'))
+        //  ->groupBy('meal_id');
+        
+        //return Meal::all();
 
-        // $mealIds = [];
-        // $mealTags = $q->get();
-        // foreach($mealTags as $item){
-        //     $tagIdsArray = explode(',', $item['tag_ids']);
-        //     if($tagIdsArray===$tags){
+        //$mealIds = [];
+        //$mealTags = $q->get();
+        //return $mealTags;
+        //foreach($mealTags as $item){
+        //    $tagIdsArray = explode(',', $item->tag_ids);
+            //return $tagIdsArray;
+        //    if($tagIdsArray===$tags){
         //         return $item;
         //     }
         // }
-        // 
+        //return $mealIds;
 
 
         if (!empty($tag_id)){
