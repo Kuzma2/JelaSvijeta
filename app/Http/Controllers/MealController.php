@@ -75,75 +75,29 @@ class MealController extends Controller
             return response()->json($meals);
         }
 
-        //TODO implement using repository pattern (https://blog.devgenius.io/laravel-repository-design-pattern-a-quick-demonstration-5698d7ce7e1f)
-
         $query = Meal::query();
 
         if (!empty($tag_id)){
             $query = $this->mealRepository->getMealsByTagId($query, $tag_id);
         }
-          
 
         if (!empty($category_id)){
-            if ($category_id === '!NULL'){
-                $query->whereNotNull('category_id');
-            }
-            else if ($category_id === 'NULL'){
-                $query->whereNull('category_id');
-            }
-            else {
-                $query->where('category_id', $category_id);
-            }
+            $query = $this->mealRepository->filterByCategoryId($query, $category_id);    
         }
-        
 
         if (!empty($diffTime)) {
-            $query->where('created_at', '>=', now()->subSeconds($diffTime));
+            $query = $this->mealRepository->filterByDiffTime($query, $diffTime);
         }
 
-        if (!empty($per_page))
-        {
-            $meals = $query->paginate($per_page);
-        } 
-        else {
-            $meals = $query->paginate();
-        }
+        $meals = $this->mealRepository->paginateMeals($query, $per_page);
         
-        if(in_array('tags', $with)){
-            $meals->load('tags');
-        }
+        $this->mealRepository->loadTags($meals, $with);
 
-        if(in_array('ingredients', $with)){
-            $meals->load('ingredients');
-        }     
+        $this->mealRepository->loadIngredients($meals, $with);    
         
+        $this->mealRepository->loadCategories($meals, $with);
 
-        foreach ($meals as $meal) {
-            $meal->status = Status::where('id', $meal->status_id)->get()->first()->title;
-          
-            if(in_array('category', $with)){
-                $meal->category = Category::where('id', $meal->category_id)->get();
-                $meal->category->makeHidden('translations');
-            }
-
-            if(in_array('ingredients', $with)){
-                $meal->ingredients->makeHidden(['translations', 'pivot']);
-            }  
-
-            unset($meal->status_id);
-            unset($meal->category_id);
-
-            if(in_array('tags', $with)){
-                $meal->tags->makeHidden(['translations', 'pivot']);
-            }
-            
-        }
-
-        $meals->makeHidden('translations');
-
-        
         $meals->appends($request->except('page'));
-
 
         return response()->json($meals);
     }
