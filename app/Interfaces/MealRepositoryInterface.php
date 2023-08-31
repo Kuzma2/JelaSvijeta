@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface TaskRepositoryInterface
+interface MealRepositoryInterface
 {
     public function getAllMeals();
     public function getMealsByTagId($query, $tag_id);

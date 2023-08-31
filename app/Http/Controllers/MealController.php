@@ -13,10 +13,17 @@ use Astrotomic\Translatable\Translatable;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Validator;
+use App\Interfaces\MealRepositoryInterface;
 
 class MealController extends Controller
 {
     use Translatable;
+    private MealRepositoryInterface $mealRepository;
+
+    public function __construct(MealRepositoryInterface $mealRepository)
+    {
+        $this->mealRepository = $mealRepository;
+    }
 
 
 /**
@@ -64,20 +71,18 @@ class MealController extends Controller
 
             
         if (empty($per_page) and empty($tag_id) and empty($with_keywords) and empty($diffTime) and empty($category_id)){
-            $meals = Meal::all();
-            $meals->makeHidden('translations');
+            $meals = $this->mealRepository->getAllMeals();
             return response()->json($meals);
         }
 
         //TODO implement using repository pattern (https://blog.devgenius.io/laravel-repository-design-pattern-a-quick-demonstration-5698d7ce7e1f)
 
         $query = Meal::query();
-        if (!empty($tag_id)){
 
-            $query = Meal::whereHas('tags', function ($query) use ($tags) {
-                $query->whereIn('tag_id', $tags);
-            }, '=', count($tags));
-        }   
+        if (!empty($tag_id)){
+            $query = $this->mealRepository->getMealsByTagId($query, $tag_id);
+        }
+          
 
         if (!empty($category_id)){
             if ($category_id === '!NULL'){
