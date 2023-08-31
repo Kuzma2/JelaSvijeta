@@ -25,7 +25,6 @@ class MealController extends Controller
         $this->mealRepository = $mealRepository;
     }
 
-
 /**
      * Display the specified resource.
      *
@@ -39,7 +38,7 @@ class MealController extends Controller
             'tags' => 'non_negative_integer_array',
             'lang' => 'two_character_lang_tag',
             'with' => 'with_tag_false',
-            //'category' => 'numeric|not_negative_integer',
+            'category' => 'not_negative_integer_or_null',
             'diff_time' => 'numeric|not_negative_integer',
 
         );
@@ -56,8 +55,6 @@ class MealController extends Controller
         
         $tag_id = $request->get('tags');
 
-        $tags = explode(",", $tag_id);
-
         $with_keywords = $request->get('with');
         
         $with = explode(",", $with_keywords);
@@ -69,7 +66,6 @@ class MealController extends Controller
         if (!empty($lang))
             App::setLocale($lang);
 
-            
         if (empty($per_page) and empty($tag_id) and empty($with_keywords) and empty($diffTime) and empty($category_id)){
             $meals = $this->mealRepository->getAllMeals();
             return response()->json($meals);

@@ -38,6 +38,15 @@ class AppServiceProvider extends ServiceProvider
             return true;
         });
 
+        Validator::extend('not_negative_integer_or_null', function ($attribute, $value, $parameters, $validator) {
+            if ($value === 'NULL' || $value === '!NULL') {
+                return true;
+            }
+        
+            return intval($value) == $value && $value >= 0;
+        });
+        
+
         Validator::extend('two_character_lang_tag', function ($attribute, $value, $parameters, $validator) {
             return is_string($value) && strlen($value) === 2;
         });
