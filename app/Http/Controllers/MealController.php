@@ -90,16 +90,18 @@ class MealController extends Controller
                 $query->where('category_id', $category_id);
             }
         }
+        
+
+        if (!empty($diffTime)) {
+            $query->where('created_at', '>=', now()->subSeconds($diffTime));
+        }
+
         if (!empty($per_page))
         {
             $meals = $query->paginate($per_page);
         } 
         else {
             $meals = $query->paginate();
-        }
-
-        if (!empty($diffTime)) {
-            $meals->where('created_at', '>=', now()->subSeconds($diffTime));
         }
         
         if(in_array('tags', $with)){
