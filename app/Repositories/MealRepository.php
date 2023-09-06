@@ -17,7 +17,7 @@ class MealRepository implements MealRepositoryInterface
 
     public function getMealsByTagId($query, $tag_id){
         $tags = explode(",", $tag_id);
-        $query = Meal::whereHas('tags', function ($query) use ($tags) {
+        $query = $query->whereHas('tags', function ($query) use ($tags) {
             $query->whereIn('tag_id', $tags);
         }, '=', count($tags));
         return $query; 

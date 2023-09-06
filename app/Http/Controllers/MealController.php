@@ -66,7 +66,7 @@ class MealController extends Controller
         if (!empty($lang))
             App::setLocale($lang);
 
-        if (empty($per_page) and empty($tag_id) and empty($with_keywords) and empty($diffTime) and empty($category_id)){
+        if (empty($per_page) && empty($tag_id) && empty($with_keywords) && empty($diffTime) && empty($category_id)){
             $meals = $this->mealRepository->getAllMeals();
             return response()->json($meals);
         }
