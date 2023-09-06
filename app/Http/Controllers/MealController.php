@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Validator;
 use App\Interfaces\MealRepositoryInterface;
 use App\Http\Resources\MealResource;
+use App\Http\Resources\MealCollection;
 
 class MealController extends Controller
 {
@@ -69,7 +70,8 @@ class MealController extends Controller
 
         if (empty($per_page) && empty($tag_id) && empty($with_keywords) && empty($diffTime) && empty($category_id)){
             $meals = $this->mealRepository->getAllMeals();
-            return response()->json($meals);
+            //return response()->json(MealResource::collection($meals));
+            return response()->json(new MealCollection($meals));
         }
 
         $query = Meal::query();
@@ -96,7 +98,7 @@ class MealController extends Controller
 
         $meals->appends($request->except('page'));
 
-        return response()->json(MealResource::collection($meals));
+        return response()->json(new MealCollection($meals));
     }
 
 }

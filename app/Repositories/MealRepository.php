@@ -13,9 +13,7 @@ use App\Http\Resources\MealResource;
 class MealRepository implements MealRepositoryInterface
 {
     public function getAllMeals(){
-        $meals = Meal::all();
-        $meals->makeHidden('translations');
-        return MealResource::collection($meals);
+        return Meal::all();
     }
 
     public function getMealsByTagId(Builder $query, string $tag_id){
