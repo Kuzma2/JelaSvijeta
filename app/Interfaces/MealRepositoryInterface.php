@@ -6,7 +6,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface MealRepositoryInterface
 {
-    public function getAllMeals();
+    public function getAllMeals(?int $per_page);
     public function getMealsByTagId(Builder $query, string $tag_id);
     public function filterByCategoryId(Builder $query, int $category_id);
     public function paginateMeals(Builder $query, ?int $per_page);

@@ -12,8 +12,8 @@ use App\Http\Resources\MealResource;
 
 class MealRepository implements MealRepositoryInterface
 {
-    public function getAllMeals(){
-        return Meal::all();
+    public function getAllMeals(?int $per_page){
+        return Meal::paginate($per_page);
     }
 
     public function getMealsByTagId(Builder $query, string $tag_id){
@@ -50,22 +50,16 @@ class MealRepository implements MealRepositoryInterface
         return $query->where('created_at', '>=', now()->subSeconds($diffTime));
     }
     public function loadTags(Builder $query, array $with){
-        if(in_array('tags', $with)){
-            $query = $query->with('tags');
-            return $query;
-        }
+        $query = $query->with('tags');
+        return $query;
     }
     public function loadIngredients(Builder $query, array $with){
-        if(in_array('ingredients', $with)){
-            $query = $query->with('ingredients');
-            return $query;
-        } 
+        $query = $query->with('ingredients');
+        return $query;
     }
     public function loadCategories(Builder $query, array $with){
-            if(in_array('category', $with)){
-                $query = $query->with('category');
-                return $query;
-            }
+            $query = $query->with('category');
+            return $query;
     }
     
 }

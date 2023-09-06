@@ -68,13 +68,13 @@ class MealController extends Controller
         if (!empty($lang))
             App::setLocale($lang);
 
-        if (empty($per_page) && empty($tag_id) && empty($with_keywords) && empty($diffTime) && empty($category_id)){
-            $meals = $this->mealRepository->getAllMeals();
-            //return response()->json(MealResource::collection($meals));
+        $query = Meal::query();
+
+        if (empty($tag_id) && empty($with_keywords) && empty($diffTime) && empty($category_id)){
+            $meals = $this->mealRepository->getAllMeals($per_page);
+            $meals->appends($request->except('page'));
             return response()->json(new MealCollection($meals));
         }
-
-        $query = Meal::query();
 
         if (!empty($tag_id)){
             $query = $this->mealRepository->getMealsByTagId($query, $tag_id);
@@ -88,12 +88,18 @@ class MealController extends Controller
             $query = $this->mealRepository->filterByDiffTime($query, $diffTime);
         }
         
+        if(in_array('tags', $with)){
         $query = $this->mealRepository->loadTags($query, $with);
+        }
 
+        if(in_array('ingredients', $with)){
         $query = $this->mealRepository->loadIngredients($query, $with);    
-        
-        $query = $this->mealRepository->loadCategories($query, $with);
+        }
 
+        if(in_array('category', $with)){
+        $query = $this->mealRepository->loadCategories($query, $with);
+        }
+        
         $meals = $this->mealRepository->paginateMeals($query, $per_page);
 
         $meals->appends($request->except('page'));
