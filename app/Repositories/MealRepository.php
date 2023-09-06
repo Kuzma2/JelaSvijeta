@@ -8,13 +8,14 @@ use App\Models\Status;
 use App\Models\Category;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use App\Http\Resources\MealResource;
 
 class MealRepository implements MealRepositoryInterface
 {
     public function getAllMeals(){
         $meals = Meal::all();
         $meals->makeHidden('translations');
-        return $meals;
+        return MealResource::collection($meals);
     }
 
     public function getMealsByTagId(Builder $query, string $tag_id){
@@ -37,7 +38,7 @@ class MealRepository implements MealRepositoryInterface
         return $query;
 
     }
-    public function paginateMeals(Builder $query, int $per_page){
+    public function paginateMeals(Builder $query, ?int $per_page){
         if (!empty($per_page))
         {
             $meals = $query->paginate($per_page);
@@ -50,37 +51,23 @@ class MealRepository implements MealRepositoryInterface
     public function filterByDiffTime(Builder $query, int $diffTime){
         return $query->where('created_at', '>=', now()->subSeconds($diffTime));
     }
-    public function loadTags(LengthAwarePaginator $meals, array $with){
+    public function loadTags(Builder $query, array $with){
         if(in_array('tags', $with)){
-            $meals->load('tags');
+            $query = $query->with('tags');
+            return $query;
         }
     }
-    public function loadIngredients(LengthAwarePaginator $meals, array $with){
+    public function loadIngredients(Builder $query, array $with){
         if(in_array('ingredients', $with)){
-            $meals->load('ingredients');
+            $query = $query->with('ingredients');
+            return $query;
         } 
     }
-    public function loadCategories(LengthAwarePaginator $meals, array $with){
-        foreach ($meals as $meal) {
-            $meal->status = Status::where('id', $meal->status_id)->get()->first()->title;
-          
+    public function loadCategories(Builder $query, array $with){
             if(in_array('category', $with)){
-                $meal->category = Category::where('id', $meal->category_id)->get();
-                $meal->category->makeHidden('translations');
+                $query = $query->with('category');
+                return $query;
             }
-
-            if(in_array('ingredients', $with)){
-                $meal->ingredients->makeHidden(['translations', 'pivot']);
-            }  
-
-            unset($meal->status_id);
-            unset($meal->category_id);
-
-            if(in_array('tags', $with)){
-                $meal->tags->makeHidden(['translations', 'pivot']);
-            }
-        }
-        $meals->makeHidden('translations');
     }
     
 }

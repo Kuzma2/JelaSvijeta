@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract;
 use Astrotomic\Translatable\Translatable;
 
@@ -22,14 +22,14 @@ class Meal extends Model implements TranslatableContract
 
     public $timestamps = true;
 
-    public function status(): HasOne
-    {
-        return $this->hasOne(Status::class);
-    }
+    public function status(): BelongsTo
+{
+    return $this->belongsTo(Status::class, 'status_id');
+}
 
-    public function category(): HasOne
+    public function category(): BelongsTo
     {
-        return $this->hasOne(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function ingredients()

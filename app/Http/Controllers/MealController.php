@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Validator;
 use App\Interfaces\MealRepositoryInterface;
+use App\Http\Resources\MealResource;
 
 class MealController extends Controller
 {
@@ -84,18 +85,18 @@ class MealController extends Controller
         if (!empty($diffTime)) {
             $query = $this->mealRepository->filterByDiffTime($query, $diffTime);
         }
+        
+        $query = $this->mealRepository->loadTags($query, $with);
+
+        $query = $this->mealRepository->loadIngredients($query, $with);    
+        
+        $query = $this->mealRepository->loadCategories($query, $with);
 
         $meals = $this->mealRepository->paginateMeals($query, $per_page);
-        
-        $this->mealRepository->loadTags($meals, $with);
-
-        $this->mealRepository->loadIngredients($meals, $with);    
-        
-        $this->mealRepository->loadCategories($meals, $with);
 
         $meals->appends($request->except('page'));
 
-        return response()->json($meals);
+        return response()->json(MealResource::collection($meals));
     }
 
 }
