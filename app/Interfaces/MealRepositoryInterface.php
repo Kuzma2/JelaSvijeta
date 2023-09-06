@@ -1,16 +1,18 @@
 <?php
 
 namespace App\Interfaces;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface MealRepositoryInterface
 {
     public function getAllMeals();
-    public function getMealsByTagId($query, $tag_id);
-    public function filterByCategoryId($query, $category_id);
-    public function paginateMeals($query, $per_page);
-    public function filterByDiffTime($query, $diffTime);
-    public function loadTags($meals, $with);
-    public function loadIngredients($meals, $with);
-    public function loadCategories($meals, $with);
+    public function getMealsByTagId(Builder $query, string $tag_id);
+    public function filterByCategoryId(Builder $query, int $category_id);
+    public function paginateMeals(Builder $query, int $per_page);
+    public function filterByDiffTime(Builder $query, int $diffTime);
+    public function loadTags(LengthAwarePaginator $meals, array $with);
+    public function loadIngredients(LengthAwarePaginator $meals, array $with);
+    public function loadCategories(LengthAwarePaginator $meals, array $with);
 
 }

@@ -6,6 +6,8 @@ use App\Interfaces\MealRepositoryInterface;
 use App\Models\Meal;
 use App\Models\Status;
 use App\Models\Category;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 class MealRepository implements MealRepositoryInterface
 {
@@ -15,14 +17,14 @@ class MealRepository implements MealRepositoryInterface
         return $meals;
     }
 
-    public function getMealsByTagId($query, $tag_id){
+    public function getMealsByTagId(Builder $query, string $tag_id){
         $tags = explode(",", $tag_id);
         $query = $query->whereHas('tags', function ($query) use ($tags) {
             $query->whereIn('tag_id', $tags);
         }, '=', count($tags));
         return $query; 
     }
-    public function filterByCategoryId($query, $category_id){
+    public function filterByCategoryId(Builder $query, int $category_id){
         if ($category_id === '!NULL'){
             $query->whereNotNull('category_id');
         }
@@ -35,7 +37,7 @@ class MealRepository implements MealRepositoryInterface
         return $query;
 
     }
-    public function paginateMeals($query, $per_page){
+    public function paginateMeals(Builder $query, int $per_page){
         if (!empty($per_page))
         {
             $meals = $query->paginate($per_page);
@@ -45,20 +47,20 @@ class MealRepository implements MealRepositoryInterface
         }
         return $meals;
     }
-    public function filterByDiffTime($query, $diffTime){
+    public function filterByDiffTime(Builder $query, int $diffTime){
         return $query->where('created_at', '>=', now()->subSeconds($diffTime));
     }
-    public function loadTags($meals, $with){
+    public function loadTags(LengthAwarePaginator $meals, array $with){
         if(in_array('tags', $with)){
             $meals->load('tags');
         }
     }
-    public function loadIngredients($meals, $with){
+    public function loadIngredients(LengthAwarePaginator $meals, array $with){
         if(in_array('ingredients', $with)){
             $meals->load('ingredients');
         } 
     }
-    public function loadCategories($meals, $with){
+    public function loadCategories(LengthAwarePaginator $meals, array $with){
         foreach ($meals as $meal) {
             $meal->status = Status::where('id', $meal->status_id)->get()->first()->title;
           
